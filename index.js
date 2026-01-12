@@ -156,9 +156,9 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("GameHub server");
+  res.send("BookWorm server");
 });
 
 app.listen(port, () => {
-  console.log(`GameHub server listening on port ${port}`);
+  console.log(`BookWorm server listening on port ${port}`);
 });

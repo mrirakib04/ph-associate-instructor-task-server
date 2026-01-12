@@ -47,6 +47,32 @@ async function run() {
     const database = client.db(process.env.DB_NAME);
     const usersCollection = database.collection("users");
     const booksCollection = database.collection("books");
+
+    // POSTING
+    // REGISTER (POST)
+    app.post("/register", async (req, res) => {
+      try {
+        const { name, email, password, image } = req.body;
+
+        const exist = await usersCollection.findOne({ email });
+        if (exist)
+          return res.status(400).json({ message: "User already exists" });
+
+        const newUser = {
+          name,
+          email,
+          password,
+          image: image || "",
+          createdAt: new Date(),
+        };
+
+        await usersCollection.insertOne(newUser);
+
+        res.json({ message: "Registered successfully", user: newUser });
+      } catch (err) {
+        res.status(500).json({ message: "Server error" });
+      }
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();

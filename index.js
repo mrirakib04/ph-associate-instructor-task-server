@@ -120,6 +120,34 @@ async function run() {
         res.status(500).json({ message: "Server error" });
       }
     });
+    // PUT /update-photo
+    app.put("/update-photo", async (req, res) => {
+      try {
+        const { email, image } = req.body;
+
+        if (!email || !image) {
+          return res
+            .status(400)
+            .json({ message: "Email and Image URL are required" });
+        }
+
+        const result = await usersCollection.updateOne(
+          { email },
+          { $set: { image } }
+        );
+
+        if (result.modifiedCount === 0) {
+          return res
+            .status(404)
+            .json({ message: "User not found or image unchanged" });
+        }
+
+        res.json({ message: "Photo updated successfully" });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+      }
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();

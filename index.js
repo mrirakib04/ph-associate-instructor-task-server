@@ -373,6 +373,17 @@ async function run() {
       });
       res.send(result);
     });
+    // DELETE tutorial
+    app.delete("/tutorials/dlt/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await tutorialsCollection.deleteOne(query);
+        res.send(result);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to delete tutorial" });
+      }
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();

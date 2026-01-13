@@ -140,6 +140,25 @@ async function run() {
         res.status(500).json({ message: "Server error" });
       }
     });
+    // POST a new tutorial
+    app.post("/tutorials", async (req, res) => {
+      try {
+        const { title, videoUrl, authorEmail } = req.body;
+        if (!authorEmail) {
+          return res.status(400).json({ message: "Author email is required" });
+        }
+        const newTutorial = {
+          title,
+          videoUrl, // Expected: YouTube embed link or ID
+          authorEmail,
+          createdAt: new Date(),
+        };
+        const result = await tutorialsCollection.insertOne(newTutorial);
+        res.status(201).json(result);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to add tutorial" });
+      }
+    });
 
     // READING
     // GET single user by email

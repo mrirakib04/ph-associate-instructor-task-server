@@ -155,6 +155,13 @@ async function run() {
         res.status(500).send({ message: "Error fetching books" });
       }
     });
+    // Admin Books
+    app.get("/my-books/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { authorEmail: email };
+      const result = await booksCollection.find(query).toArray();
+      res.send(result);
+    });
 
     // UPDATING
     // PUT /update-name

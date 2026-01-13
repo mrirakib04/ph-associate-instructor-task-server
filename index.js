@@ -217,6 +217,11 @@ async function run() {
         res.status(500).json({ message: "Failed to fetch your categories" });
       }
     });
+    // GET all tutorials
+    app.get("/tutorials", async (req, res) => {
+      const result = await tutorialsCollection.find().toArray();
+      res.send(result);
+    });
 
     // UPDATING
     // PUT /update-name

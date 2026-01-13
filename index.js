@@ -62,6 +62,7 @@ async function run() {
           name,
           email,
           password,
+          role: "Reader",
           image: image || "",
           createdAt: new Date(),
         };
@@ -87,6 +88,24 @@ async function run() {
 
         res.json({ message: "Login success", user });
       } catch (err) {
+        res.status(500).json({ message: "Server error" });
+      }
+    });
+
+    // READING
+    // GET single user by email
+    app.get("/user/:email", async (req, res) => {
+      try {
+        const email = req.params.email;
+        const query = { email: email };
+        const user = await usersCollection.findOne(query);
+
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json(user);
+      } catch (error) {
         res.status(500).json({ message: "Server error" });
       }
     });

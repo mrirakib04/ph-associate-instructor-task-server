@@ -187,6 +187,17 @@ async function run() {
       const result = await categoriesCollection.find().toArray();
       res.send(result);
     });
+    // GET categories by author email (My Categories)
+    app.get("/my-categories/:email", async (req, res) => {
+      try {
+        const email = req.params.email;
+        const query = { authorEmail: email };
+        const result = await categoriesCollection.find(query).toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to fetch your categories" });
+      }
+    });
 
     // UPDATING
     // PUT /update-name
@@ -291,7 +302,7 @@ async function run() {
 
     // DELETING
     // DELETE a book
-    app.delete("/books/:id", async (req, res) => {
+    app.delete("/books/dlt/:id", async (req, res) => {
       try {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };

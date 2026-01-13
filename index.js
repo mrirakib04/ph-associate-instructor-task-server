@@ -246,7 +246,7 @@ async function run() {
       }
     });
     // 4. PUT (Update) a book
-    app.put("/books/:id", async (req, res) => {
+    app.put("/books/update/:id", async (req, res) => {
       try {
         const id = req.params.id;
         const updatedBook = req.body;
@@ -276,7 +276,7 @@ async function run() {
       }
     });
     // PUT (Update) category name
-    app.put("/categories/:id", async (req, res) => {
+    app.put("/categories/update/:id", async (req, res) => {
       try {
         const id = req.params.id;
         const { name } = req.body;
@@ -300,6 +300,14 @@ async function run() {
       } catch (error) {
         res.status(500).send({ message: "Failed to delete book" });
       }
+    });
+    // DELETE category
+    app.delete("/categories/dlt/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await categoriesCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+      res.send(result);
     });
   } finally {
     // Ensures that the client will close when you finish/error

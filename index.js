@@ -213,6 +213,36 @@ async function run() {
         res.status(500).json({ message: "Server error" });
       }
     });
+    // 4. PUT (Update) a book
+    app.put("/books/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const updatedBook = req.body;
+        const filter = { _id: new ObjectId(id) };
+
+        const updateDoc = {
+          $set: {
+            title: updatedBook.title,
+            author: updatedBook.author,
+            genre: updatedBook.genre,
+            description: updatedBook.description,
+            image: updatedBook.image,
+            authorEmail: updatedBook.authorEmail,
+            updatedAt: new Date(),
+          },
+        };
+
+        const result = await booksCollection.updateOne(filter, updateDoc);
+
+        if (result.matchedCount === 0) {
+          return res.status(404).send({ message: "Book not found" });
+        }
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to update book" });
+      }
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();

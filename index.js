@@ -337,6 +337,21 @@ async function run() {
         res.status(500).json({ message: "Failed to update" });
       }
     });
+    // PUT (Update) tutorial
+    app.put("/tutorials/update/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const { title, videoUrl } = req.body;
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = {
+          $set: { title, videoUrl, updatedAt: new Date() },
+        };
+        const result = await tutorialsCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to update tutorial" });
+      }
+    });
 
     // DELETING
     // DELETE a book

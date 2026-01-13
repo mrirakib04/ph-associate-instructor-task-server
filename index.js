@@ -236,6 +236,15 @@ async function run() {
         res.status(500).json({ message: "Failed to fetch tutorials" });
       }
     });
+    // GET all users (For Admin Manage Users page)
+    app.get("/users", async (req, res) => {
+      try {
+        const result = await usersCollection.find().toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to fetch users" });
+      }
+    });
 
     // UPDATING
     // PUT /update-name

@@ -361,6 +361,21 @@ async function run() {
         res.status(500).json({ message: "Failed to update tutorial" });
       }
     });
+    // PATCH/PUT update user role
+    app.patch("/users/role/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const { role } = req.body; // Expecting { role: "Admin" } or { role: "Reader" }
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = {
+          $set: { role: role },
+        };
+        const result = await usersCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Role update failed" });
+      }
+    });
 
     // DELETING
     // DELETE a book

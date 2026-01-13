@@ -162,6 +162,11 @@ async function run() {
       const result = await booksCollection.find(query).toArray();
       res.send(result);
     });
+    // GET all categories
+    app.get("/categories", async (req, res) => {
+      const result = await categoriesCollection.find().toArray();
+      res.send(result);
+    });
 
     // UPDATING
     // PUT /update-name

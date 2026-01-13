@@ -138,6 +138,23 @@ async function run() {
         res.status(500).json({ message: "Server error" });
       }
     });
+    // GET all books (with optional search/filter)
+    app.get("/books", async (req, res) => {
+      try {
+        const { search, genre } = req.query;
+        let query = {};
+        if (search) {
+          query.title = { $regex: search, $options: "i" };
+        }
+        if (genre) {
+          query.genre = genre;
+        }
+        const result = await booksCollection.find(query).toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Error fetching books" });
+      }
+    });
 
     // UPDATING
     // PUT /update-name

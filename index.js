@@ -47,6 +47,9 @@ async function run() {
     const database = client.db(process.env.DB_NAME);
     const usersCollection = database.collection("users");
     const booksCollection = database.collection("books");
+    const categoriesCollection = database.collection("categories");
+    const reviewsCollection = database.collection("reviews");
+    const tutorialsCollection = database.collection("tutorials");
 
     // POSTING
     // REGISTER (POST)
@@ -89,6 +92,32 @@ async function run() {
         res.json({ message: "Login success", user });
       } catch (err) {
         res.status(500).json({ message: "Server error" });
+      }
+    });
+    // POST a new book with authorEmail
+    app.post("/books", async (req, res) => {
+      try {
+        const { title, author, genre, description, image, authorEmail } =
+          req.body;
+
+        if (!authorEmail) {
+          return res.status(400).json({ message: "Author email is required" });
+        }
+
+        const newBook = {
+          title,
+          author,
+          genre,
+          description,
+          image,
+          authorEmail,
+          createdAt: new Date(),
+        };
+
+        const result = await booksCollection.insertOne(newBook);
+        res.status(201).json(result);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to add book" });
       }
     });
 

@@ -275,6 +275,19 @@ async function run() {
         res.status(500).send({ message: "Failed to update book" });
       }
     });
+    // PUT (Update) category name
+    app.put("/categories/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const { name } = req.body;
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = { $set: { name } };
+        const result = await categoriesCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to update" });
+      }
+    });
 
     // DELETING
     // DELETE a book

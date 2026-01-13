@@ -222,6 +222,20 @@ async function run() {
       const result = await tutorialsCollection.find().toArray();
       res.send(result);
     });
+    // GET tutorials by author email
+    app.get("/my-tutorials/:email", async (req, res) => {
+      try {
+        const email = req.params.email;
+        const query = { authorEmail: email };
+        const result = await tutorialsCollection
+          .find(query)
+          .sort({ createdAt: -1 })
+          .toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to fetch tutorials" });
+      }
+    });
 
     // UPDATING
     // PUT /update-name

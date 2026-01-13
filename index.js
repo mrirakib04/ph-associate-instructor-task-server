@@ -120,6 +120,26 @@ async function run() {
         res.status(500).json({ message: "Failed to add book" });
       }
     });
+    // POST new category (With Duplicate Check)
+    app.post("/categories", async (req, res) => {
+      try {
+        const { name, authorEmail } = req.body;
+
+        const exist = await categoriesCollection.findOne({
+          name: { $regex: `^${name}$`, $options: "i" },
+        });
+
+        if (exist) {
+          return res.status(400).json({ message: "Category already exists!" });
+        }
+
+        const newCategory = { name, authorEmail, createdAt: new Date() };
+        const result = await categoriesCollection.insertOne(newCategory);
+        res.status(201).json(result);
+      } catch (error) {
+        res.status(500).json({ message: "Server error" });
+      }
+    });
 
     // READING
     // GET single user by email

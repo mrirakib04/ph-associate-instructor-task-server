@@ -411,6 +411,15 @@ async function run() {
         res.status(500).send({ message: "Failed to fetch reviews" });
       }
     });
+    // GET My Library
+    app.get("/my-library/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await myLibraryCollection
+        .find({ userEmail: email })
+        .sort({ addedAt: -1 })
+        .toArray();
+      res.send(result);
+    });
 
     // UPDATING
     // PUT /update-name

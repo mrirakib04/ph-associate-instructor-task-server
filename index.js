@@ -580,6 +580,18 @@ async function run() {
         res.status(500).json({ message: "Failed to delete tutorial" });
       }
     });
+    // DELETE Review
+    app.delete("/reviews/dlt/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const result = await reviewsCollection.deleteOne({
+          _id: new ObjectId(id),
+        });
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to delete review" });
+      }
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();

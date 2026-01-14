@@ -368,6 +368,14 @@ async function run() {
         .toArray();
       res.send(result);
     });
+    // GET my library
+    app.get("/my-library/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await myLibraryCollection
+        .find({ userEmail: email })
+        .toArray();
+      res.send(result);
+    });
 
     // UPDATING
     // PUT /update-name

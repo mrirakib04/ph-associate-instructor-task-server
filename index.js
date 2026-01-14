@@ -504,6 +504,19 @@ async function run() {
         res.status(500).send({ message: "Error fetching latest books" });
       }
     });
+    // GET 6 latest tutorials for Home Page
+    app.get("/home/latest/tutorials", async (req, res) => {
+      try {
+        const result = await tutorialsCollection
+          .find()
+          .sort({ createdAt: -1 })
+          .limit(6)
+          .toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Error fetching latest tutorials" });
+      }
+    });
 
     // UPDATING
     // PUT /update-name

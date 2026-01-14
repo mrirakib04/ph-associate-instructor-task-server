@@ -179,8 +179,16 @@ async function run() {
     });
     // POST a book in your library
     app.post("/my-library", async (req, res) => {
-      const { bookId, userEmail, shelf, title, image, author, totalPages } =
-        req.body;
+      const {
+        bookId,
+        userEmail,
+        shelf,
+        title,
+        image,
+        author,
+        authorEmail,
+        totalPages,
+      } = req.body;
 
       const query = { bookId, userEmail };
       const updateDoc = {
@@ -190,6 +198,7 @@ async function run() {
           title,
           image,
           author,
+          authorEmail,
           userEmail,
           totalPages: totalPages || 0,
           progress: 0,
@@ -375,6 +384,26 @@ async function run() {
         .find({ userEmail: email })
         .toArray();
       res.send(result);
+    });
+    // GET reviews
+    app.get("/manage-reviews/:email", async (req, res) => {
+      try {
+        const email = req.params.email;
+        const status = req.query.status;
+
+        let query = { authorEmail: email };
+        if (status) {
+          query.status = status;
+        }
+
+        const result = await reviewsCollection
+          .find(query)
+          .sort({ createdAt: -1 })
+          .toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to fetch reviews" });
+      }
     });
 
     // UPDATING

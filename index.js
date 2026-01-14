@@ -491,6 +491,19 @@ async function run() {
         res.status(500).send({ message: "Error fetching user stats" });
       }
     });
+    // GET 8 latest books for Home Page
+    app.get("/home/latest/books", async (req, res) => {
+      try {
+        const result = await booksCollection
+          .find()
+          .sort({ createdAt: -1 })
+          .limit(8)
+          .toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Error fetching latest books" });
+      }
+    });
 
     // UPDATING
     // PUT /update-name

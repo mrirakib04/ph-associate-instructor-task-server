@@ -232,10 +232,11 @@ async function run() {
         res.status(500).json({ message: "Server error" });
       }
     });
-    // GET all books with Search, Filter, Sorting and Pagination
+    // GET all books with Search, Filter and Pagination
     app.get("/books", async (req, res) => {
       try {
         const { search, genre, sort, page = 0, size = 12 } = req.query;
+
         const pageNumber = parseInt(page);
         const pageSize = parseInt(size);
 
@@ -249,32 +250,37 @@ async function run() {
           ];
         }
 
-        // Filter
+        // Genre filter
         if (genre) {
-          const genreArray = genre.split(",");
-          query.genre = { $in: genreArray };
+          query.genre = { $in: genre.split(",") };
         }
 
-        // Sort
+        // Sorting
         let sortOptions = {};
-        if (sort === "rating") sortOptions = { rating: -1 };
-        else if (sort === "newest") sortOptions = { createdAt: -1 };
+        if (sort === "newest") {
+          sortOptions = { createdAt: -1 };
+        } else if (sort === "oldest") {
+          sortOptions = { createdAt: 1 };
+        } else {
+          sortOptions = { _id: -1 };
+        }
 
-        // Fetching Data with Pagination
-        const cursor = booksCollection
+        const books = await booksCollection
           .find(query)
           .sort(sortOptions)
           .skip(pageNumber * pageSize)
-          .limit(pageSize);
+          .limit(pageSize)
+          .toArray();
 
-        const result = await cursor.toArray();
-        const count = await booksCollection.countDocuments(query);
+        const totalCount = await booksCollection.countDocuments(query);
 
-        res.send({ books: result, totalCount: count });
+        res.send({ books, totalCount });
       } catch (error) {
+        console.error(error);
         res.status(500).send({ message: "Error fetching books" });
       }
     });
+
     // Admin Books
     app.get("/my-books/:email", async (req, res) => {
       const email = req.params.email;

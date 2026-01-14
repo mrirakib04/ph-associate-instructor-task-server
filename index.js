@@ -330,6 +330,15 @@ async function run() {
         res.status(500).send({ message: "Internal server error" });
       }
     });
+    // GET reviews by bookId
+    app.get("/reviews/:bookId", async (req, res) => {
+      const bookId = req.params.bookId;
+      const result = await reviewsCollection
+        .find({ bookId: bookId, status: "approved" })
+        .sort({ createdAt: -1 })
+        .toArray();
+      res.send(result);
+    });
 
     // UPDATING
     // PUT /update-name

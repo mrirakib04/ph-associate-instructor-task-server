@@ -536,6 +536,18 @@ async function run() {
         res.status(500).send({ message: "Role update failed" });
       }
     });
+    // Review Status (Approve)
+    app.patch("/reviews/approve/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = { $set: { status: "approved" } };
+        const result = await reviewsCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to approve review" });
+      }
+    });
 
     // DELETING
     // DELETE a book

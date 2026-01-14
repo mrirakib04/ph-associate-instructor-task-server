@@ -159,6 +159,23 @@ async function run() {
         res.status(500).json({ message: "Failed to add tutorial" });
       }
     });
+    // POST a new review
+    app.post("/reviews", async (req, res) => {
+      try {
+        const reviewData = req.body;
+        // reviewData should contain: bookId, bookTitle, authorEmail, review, rating, reviewer, reviewerEmail
+        const newReview = {
+          ...reviewData,
+          status: "pending",
+          createdAt: new Date(),
+        };
+
+        const result = await reviewsCollection.insertOne(newReview);
+        res.status(201).json(result);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to post review" });
+      }
+    });
 
     // READING
     // GET single user by email

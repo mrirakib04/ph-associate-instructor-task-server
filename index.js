@@ -607,6 +607,17 @@ async function run() {
         res.status(500).send({ message: "Failed to delete review" });
       }
     });
+    // DELETE Book from my Library
+    app.delete("/my-library/remove/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await myLibraryCollection.deleteOne(query);
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to remove from library" });
+      }
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();

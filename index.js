@@ -177,19 +177,45 @@ async function run() {
         res.status(500).json({ message: "Server error" });
       }
     });
-    // GET all books (with optional search/filter)
+    // GET all books with Search, Filter, Sorting and Pagination
     app.get("/books", async (req, res) => {
       try {
-        const { search, genre } = req.query;
+        const { search, genre, sort, page = 0, size = 12 } = req.query;
+        const pageNumber = parseInt(page);
+        const pageSize = parseInt(size);
+
         let query = {};
+
+        // Search
         if (search) {
-          query.title = { $regex: search, $options: "i" };
+          query.$or = [
+            { title: { $regex: search, $options: "i" } },
+            { author: { $regex: search, $options: "i" } },
+          ];
         }
+
+        // Filter
         if (genre) {
-          query.genre = genre;
+          const genreArray = genre.split(",");
+          query.genre = { $in: genreArray };
         }
-        const result = await booksCollection.find(query).toArray();
-        res.send(result);
+
+        // Sort
+        let sortOptions = {};
+        if (sort === "rating") sortOptions = { rating: -1 };
+        else if (sort === "newest") sortOptions = { createdAt: -1 };
+
+        // Fetching Data with Pagination
+        const cursor = booksCollection
+          .find(query)
+          .sort(sortOptions)
+          .skip(pageNumber * pageSize)
+          .limit(pageSize);
+
+        const result = await cursor.toArray();
+        const count = await booksCollection.countDocuments(query);
+
+        res.send({ books: result, totalCount: count });
       } catch (error) {
         res.status(500).send({ message: "Error fetching books" });
       }

@@ -451,6 +451,46 @@ async function run() {
         res.status(500).send({ message: "Error fetching stats" });
       }
     });
+    // GET User Stats Dynamic
+    app.get("/user/stats/:email", async (req, res) => {
+      try {
+        const email = req.params.email;
+
+        const totalRead = await myLibraryCollection.countDocuments({
+          userEmail: email,
+          shelf: "Read",
+        });
+
+        const inProgress = await myLibraryCollection.countDocuments({
+          userEmail: email,
+          shelf: "Currently Reading",
+        });
+
+        const reviewStats = await reviewsCollection
+          .aggregate([
+            { $match: { reviewerEmail: email } },
+            {
+              $group: {
+                _id: null,
+                avgRating: { $avg: "$rating" },
+                totalReviews: { $sum: 1 },
+              },
+            },
+          ])
+          .toArray();
+
+        res.send({
+          totalRead,
+          inProgress,
+          avgRating:
+            reviewStats.length > 0 ? reviewStats[0].avgRating.toFixed(1) : 0,
+          totalReviews:
+            reviewStats.length > 0 ? reviewStats[0].totalReviews : 0,
+        });
+      } catch (error) {
+        res.status(500).send({ message: "Error fetching user stats" });
+      }
+    });
 
     // UPDATING
     // PUT /update-name

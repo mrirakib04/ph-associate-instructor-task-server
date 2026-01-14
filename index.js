@@ -217,10 +217,25 @@ async function run() {
         res.status(500).json({ message: "Failed to fetch your categories" });
       }
     });
-    // GET all tutorials
+    // GET all tutorials (with optional search)
     app.get("/tutorials", async (req, res) => {
-      const result = await tutorialsCollection.find().toArray();
-      res.send(result);
+      try {
+        const { search } = req.query;
+        let query = {};
+
+        if (search) {
+          query.title = { $regex: search, $options: "i" };
+        }
+
+        const result = await tutorialsCollection
+          .find(query)
+          .sort({ createdAt: -1 })
+          .toArray();
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Error fetching tutorials" });
+      }
     });
     // GET tutorials by author email
     app.get("/my-tutorials/:email", async (req, res) => {

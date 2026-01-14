@@ -50,6 +50,7 @@ async function run() {
     const categoriesCollection = database.collection("categories");
     const reviewsCollection = database.collection("reviews");
     const tutorialsCollection = database.collection("tutorials");
+    const myLibraryCollection = database.collection("myLibrary");
 
     // POSTING
     // REGISTER (POST)
@@ -175,6 +176,34 @@ async function run() {
       } catch (error) {
         res.status(500).json({ message: "Failed to post review" });
       }
+    });
+    // POST a book in your library
+    app.post("/my-library", async (req, res) => {
+      const { bookId, userEmail, shelf, title, image, author, totalPages } =
+        req.body;
+
+      const query = { bookId, userEmail };
+      const updateDoc = {
+        $set: {
+          bookId,
+          shelf,
+          title,
+          image,
+          author,
+          userEmail,
+          totalPages: totalPages || 0,
+          progress: 0,
+          addedAt: new Date(),
+        },
+      };
+
+      const options = { upsert: true };
+      const result = await myLibraryCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
+      res.send(result);
     });
 
     // READING

@@ -286,6 +286,33 @@ async function run() {
         res.status(500).send({ message: "Failed to fetch users" });
       }
     });
+    // GET a single book by ID with its reviews
+    app.get("/books/data/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ message: "Invalid Book ID format" });
+        }
+
+        const query = { _id: new ObjectId(id) };
+        const book = await booksCollection.findOne(query);
+
+        if (!book) {
+          return res.status(404).send({ message: "Book not found" });
+        }
+
+        const reviews = await reviewsCollection
+          .find({ bookId: id, status: "approved" })
+          .sort({ createdAt: -1 })
+          .toArray();
+
+        res.send({ ...book, reviews });
+      } catch (error) {
+        console.error("Error fetching book details:", error);
+        res.status(500).send({ message: "Internal server error" });
+      }
+    });
 
     // UPDATING
     // PUT /update-name

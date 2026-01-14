@@ -420,6 +420,37 @@ async function run() {
         .toArray();
       res.send(result);
     });
+    // GET Admin Stats Dynamic
+    app.get("/admin/stats/:email", async (req, res) => {
+      try {
+        const email = req.params.email;
+
+        // প্যারালালি সব কাউন্ট বের করা (Performance এর জন্য ভালো)
+        const [
+          totalBooks,
+          totalUsers,
+          totalCategories,
+          totalReviews,
+          totalTutorials,
+        ] = await Promise.all([
+          booksCollection.countDocuments({ authorEmail: email }),
+          usersCollection.countDocuments(), // টোটাল ইউজার সবার জন্য সমান
+          categoriesCollection.countDocuments({ authorEmail: email }),
+          reviewsCollection.countDocuments({ authorEmail: email }),
+          tutorialsCollection.countDocuments({ authorEmail: email }),
+        ]);
+
+        res.send({
+          totalBooks,
+          totalUsers,
+          totalCategories,
+          totalReviews,
+          totalTutorials,
+        });
+      } catch (error) {
+        res.status(500).send({ message: "Error fetching stats" });
+      }
+    });
 
     // UPDATING
     // PUT /update-name

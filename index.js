@@ -280,13 +280,28 @@ async function run() {
         res.status(500).send({ message: "Error fetching books" });
       }
     });
-
-    // Admin Books
+    // GET Admin/Author Books with Pagination
     app.get("/my-books/:email", async (req, res) => {
-      const email = req.params.email;
-      const query = { authorEmail: email };
-      const result = await booksCollection.find(query).toArray();
-      res.send(result);
+      try {
+        const email = req.params.email;
+        const page = parseInt(req.query.page) || 0;
+        const size = parseInt(req.query.size) || 10;
+
+        const query = { authorEmail: email };
+
+        const result = await booksCollection
+          .find(query)
+          .sort({ createdAt: -1 })
+          .skip(page * size)
+          .limit(size)
+          .toArray();
+
+        const totalCount = await booksCollection.countDocuments(query);
+
+        res.send({ books: result, totalCount });
+      } catch (error) {
+        res.status(500).send({ message: "Error fetching your books" });
+      }
     });
     // GET all categories
     app.get("/categories", async (req, res) => {

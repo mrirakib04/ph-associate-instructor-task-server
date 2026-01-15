@@ -291,7 +291,6 @@ async function run() {
 
         const result = await booksCollection
           .find(query)
-          .sort({ createdAt: -1 })
           .skip(page * size)
           .limit(size)
           .toArray();
@@ -308,33 +307,48 @@ async function run() {
       const result = await categoriesCollection.find().toArray();
       res.send(result);
     });
-    // GET categories by author email (My Categories)
+    // GET categories by author email (My Categories) with Pagination
     app.get("/my-categories/:email", async (req, res) => {
       try {
         const email = req.params.email;
+        const page = parseInt(req.query.page) || 0;
+        const size = parseInt(req.query.size) || 10;
+
         const query = { authorEmail: email };
-        const result = await categoriesCollection.find(query).toArray();
-        res.send(result);
+
+        const result = await categoriesCollection
+          .find(query)
+          .skip(page * size)
+          .limit(size)
+          .toArray();
+
+        const totalCount = await categoriesCollection.countDocuments(query);
+
+        res.send({ categories: result, totalCount });
       } catch (error) {
         res.status(500).json({ message: "Failed to fetch your categories" });
       }
     });
-    // GET all tutorials (with optional search)
+    // GET all tutorials (with optional search and pagination)
     app.get("/tutorials", async (req, res) => {
       try {
-        const { search } = req.query;
-        let query = {};
+        const { search, page, size } = req.query;
+        const pageNumber = parseInt(page) || 0;
+        const limitNumber = parseInt(size) || 9;
 
+        let query = {};
         if (search) {
           query.title = { $regex: search, $options: "i" };
         }
 
+        const totalCount = await tutorialsCollection.countDocuments(query);
         const result = await tutorialsCollection
           .find(query)
-          .sort({ createdAt: -1 })
+          .skip(pageNumber * limitNumber)
+          .limit(limitNumber)
           .toArray();
 
-        res.send(result);
+        res.send({ tutorials: result, totalCount });
       } catch (error) {
         res.status(500).send({ message: "Error fetching tutorials" });
       }
@@ -406,22 +420,27 @@ async function run() {
         .toArray();
       res.send(result);
     });
-    // GET reviews
+    // GET reviews with pagination and status filter
     app.get("/manage-reviews/:email", async (req, res) => {
       try {
         const email = req.params.email;
         const status = req.query.status;
+        const page = parseInt(req.query.page) || 0;
+        const size = parseInt(req.query.size) || 10;
 
         let query = { authorEmail: email };
         if (status) {
           query.status = status;
         }
 
+        const totalCount = await reviewsCollection.countDocuments(query);
         const result = await reviewsCollection
           .find(query)
-          .sort({ createdAt: -1 })
+          .skip(page * size)
+          .limit(size)
           .toArray();
-        res.send(result);
+
+        res.send({ reviews: result, totalCount });
       } catch (error) {
         res.status(500).send({ message: "Failed to fetch reviews" });
       }
